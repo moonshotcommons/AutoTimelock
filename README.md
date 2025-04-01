@@ -24,6 +24,7 @@ export ARB_DEMO=0x6c49d46cf7267A3De0A698cab95792BF69c91aFC
 export PRIVATE_KEY=0x.....
 # Arbitrum Sepolia RPC
 export ARB_RPC=https://sepolia-rollup.arbitrum.io/rpc
+export ETHERSCAN_API_KEY=...
 ```
 
 ## 部署流程
@@ -36,16 +37,16 @@ forge create \
     --private-key $PRIVATE_KEY \
     --broadcast \
     --verify \
-    --etherscan-api-key NT4WJJCTPH91D3FD2GK5E9B9QUH64WFUM5 \
+    --etherscan-api-key $ETHERSCAN_API_KEY \
     src/AutoTimelock.sol:AutoTimelock \
-    --constructor-args 0xbbdb4a02c5b24ada38dc9151c5ca692bf0e147a2
+    --constructor-args 0xF54C5b9c05C2dE971f427056Ae4a6e0f1b745D66
 
-forge create --rpc-url https://sepolia-rollup.arbitrum.io/rpc --private-key 0x82aaccddc106898a1feb7452a597b83b681ce66be37c032fe5c64742b699b83a --broadcast  --verify --etherscan-api-key NT4WJJCTPH91D3FD2GK5E9B9QUH64WFUM5 src/AutoTimelock.sol:AutoTimelock --constructor-args 0xbbdb4a02c5b24ada38dc9151c5ca692bf0e147a2
+forge create --rpc-url $ARB_RPC --private-key $PRIVATE_KEY --broadcast  --verify --etherscan-api-key $ETHERSCAN_API_KEY src/AutoTimelock.sol:AutoTimelock --constructor-args 0xF54C5b9c05C2dE971f427056Ae4a6e0f1b745D66
 ```
 
 ### 2. 设置部署后的合约地址
 ```bash
-export AUTOTL=0x220fA38fc97235386C3612A90E603ea1fC5BfE75
+export AUTOTL=0xc49d73f655b84680485d68aA540a675A653d1a3d
 ```
 
 ### 3. 测试自动化功能
@@ -53,6 +54,9 @@ export AUTOTL=0x220fA38fc97235386C3612A90E603ea1fC5BfE75
 # 验证 checkUpkeep 函数
 cast abi-decode "checkUpkeep(bytes) returns (bool,bytes)" \
     $(cast call $AUTOTL "checkUpkeep(bytes)" 0x --rpc-url $ARB_RPC)
+
+# 手动调用
+cast send $AUTOTL "performUpkeep(bytes)" 0x --rpc-url $ARB_RPC --private-key $PRIVATE_KEY
 ```
 
 ## Chainlink Automation 注册

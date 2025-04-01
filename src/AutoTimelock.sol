@@ -33,4 +33,6 @@ contract AutoTimelock is AutomationCompatibleInterface {
         (bool success, ) = timelock.call(payload);
         require(success, "Transfer failed");
     }
+
+    receive() external payable {}
 }
