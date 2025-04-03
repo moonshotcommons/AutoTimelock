@@ -6,9 +6,12 @@ import {AutomationCompatibleInterface} from "@chainlink/contracts/src/v0.8/autom
 contract AutoTimelock is AutomationCompatibleInterface {
     address public timelock;
     uint256 public constant DELAY = 300;
+    bool public executed = false;
+    uint256 public immutable deployedTime;
     
     constructor(address _timelock) {
         timelock = _timelock;
+        deployedTime = block.timestamp;
     }
 
     // checkUpKeep()：在链下间隔执行调用该函数， 该方法返回一个布尔值，告诉网络是否需要自动化执行。
@@ -20,7 +23,7 @@ contract AutoTimelock is AutomationCompatibleInterface {
         override
         returns (bool shouldTransferFunds, bytes memory /* performData */)
     {
-        if (block.timestamp % DELAY == 0) {
+        if (!executed && block.timestamp > deployedTime + DELAY) {
             shouldTransferFunds = true;
         } else {
             shouldTransferFunds = false;
@@ -32,6 +35,7 @@ contract AutoTimelock is AutomationCompatibleInterface {
         bytes memory payload = abi.encodeWithSignature("executeV2(address)",address(this));
         (bool success, ) = timelock.call(payload);
         require(success, "Transfer failed");
+        executed=true;
     }
 
     receive() external payable {}
